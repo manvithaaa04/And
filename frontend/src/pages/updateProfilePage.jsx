@@ -28,11 +28,14 @@ export default function UpdateProfilePage() {
 		password: ''
 	});
 	const fileRef = useRef(null);
+  const [updating,setUpdating] = useState(false);
     const {handleImageChange, imgUrl} = usePreviewImg()
 
 	const showToast = useShowToast();
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+    if(updating) return;
+    setUpdating(true);
 		try {
 			const res = await fetch(`/api/users/update/${user._id}`,{
 				method: "PUT",
@@ -52,7 +55,9 @@ export default function UpdateProfilePage() {
 		} catch (error) {
 			console.error(error);
 			showToast('Error',error,'error');
-		}
+		} finally {
+      setUpdating(false);
+    }
 	};
 
   return (
@@ -153,7 +158,7 @@ export default function UpdateProfilePage() {
             _hover={{
               bg: 'gray.800',
             }}
-			type='submit'>
+			type='submit' isLoading={updating}>
             Submit
           </Button>
         </Stack>
