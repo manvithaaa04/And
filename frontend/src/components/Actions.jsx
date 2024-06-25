@@ -1,6 +1,9 @@
-import {Box,
-	Button,
-	Flex, Text} from "@chakra-ui/react";
+import {Box,Button,Flex,FormControl,Input,Modal,ModalBody,ModalCloseButton,ModalContent,
+	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	Text,
+	useDisclosure,} from "@chakra-ui/react";
 import { useState } from "react";
 import userAtom from "../atoms/userAtom"
 import useShowToast from '../hooks/useShowToast';
@@ -12,6 +15,10 @@ const Actions = ({post:post_}) => {
 	const showToast = useShowToast();
 	const [post,setPost] = useState(post_);
 	const [isLiking, setIsLiking] = useState(false);
+	const [isReplying, setIsReplying] = useState(false);
+	const {isOpen,onOpen,onClose} = useDisclosure()
+	const [reply,setReply] = useState("")
+
 	const handleLikeAndUnlike = async () => {
 		if(!user) return showToast('Error','You must be logged in to like a post','error');
 		if (isLiking) return;
@@ -37,6 +44,31 @@ const Actions = ({post:post_}) => {
 			} finally {
 				setIsLiking(false);
 			}
+	}
+
+	const handleReply = async () => {
+		if (isReplying) return;
+		setIsReplying(true);
+		if (!user) return showToast("Error", "You must be logged in to reply to a post", "error");
+		try {
+			 const res = await fetch("/api/posts/reply/" + post._id, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({text:reply}),
+			 })
+			 const data = await res.json()
+			 if(data.error) return showToast("Error",data.error,"error")
+			 setPost({...post,replies:[...post.replies,data.reply]})
+			showToast("Success","Reply posted successfully","success")
+			onClose();
+			setReply("");
+		} catch (error) {
+			showToast("Error",error.message,"error")
+		}  finally {
+			setIsReplying(false);
+		}
 	}
 
     return(
@@ -67,6 +99,7 @@ const Actions = ({post:post_}) => {
 					role='img'
 					viewBox='0 0 24 24'
 					width='20'
+					onClick={onOpen}
 				>
 					<title>Comment</title>
 					<path
@@ -78,23 +111,75 @@ const Actions = ({post:post_}) => {
 					></path>
 				</svg>
 
-                <svg
-			aria-label='Repost'
-			color='currentColor'
-			fill='currentColor'
-			height='20'
-			role='img'
-			viewBox='0 0 24 24'
-			width='20'
-		>
-			<title>Repost</title>
-			<path
-				fill=''
-				d='M19.998 9.497a1 1 0 0 0-1 1v4.228a3.274 3.274 0 0 1-3.27 3.27h-5.313l1.791-1.787a1 1 0 0 0-1.412-1.416L7.29 18.287a1.004 1.004 0 0 0-.294.707v.001c0 .023.012.042.013.065a.923.923 0 0 0 .281.643l3.502 3.504a1 1 0 0 0 1.414-1.414l-1.797-1.798h5.318a5.276 5.276 0 0 0 5.27-5.27v-4.228a1 1 0 0 0-1-1Zm-6.41-3.496-1.795 1.795a1 1 0 1 0 1.414 1.414l3.5-3.5a1.003 1.003 0 0 0 0-1.417l-3.5-3.5a1 1 0 0 0-1.414 1.414l1.794 1.794H8.27A5.277 5.277 0 0 0 3 9.271V13.5a1 1 0 0 0 2 0V9.271a3.275 3.275 0 0 1 3.271-3.27Z'
-			></path>
-		</svg>
-         
-        <svg
+				<RepostSVG />
+				<ShareSVG />
+
+		</Flex>
+               
+		<Flex gap={2} alignItems={"center"}>
+				<Text color={"gray.light"} fontSize='sm'>
+					{post.replies.length} replies
+				</Text>
+				<Box w={0.5} h={0.5} borderRadius={"full"} bg={"gray.light"}></Box>
+				<Text color={"gray.light"} fontSize='sm'>
+					{post.likes.length} likes
+				</Text>
+			</Flex>
+
+
+			<Modal isOpen={isOpen} onClose={onClose} bg ={"gray.dark"}>
+				<ModalOverlay />
+				<ModalContent bg ={"gray.dark"}>
+				<ModalHeader></ModalHeader>
+					<ModalCloseButton />
+					<ModalBody pb={6} >
+						<FormControl colorScheme='black'>
+							<Input
+							   colorScheme='gray.light'
+								placeholder='Reply goes here..'
+								value={reply}
+								onChange={(e) => setReply(e.target.value)}
+							/>
+						</FormControl>
+					</ModalBody>
+
+					<ModalFooter>
+						<Button colorScheme='gray.00' bg={"gray.00"} size={"sm"} mr={3} isLoading={isReplying} onClick={handleReply}>
+							Reply
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+                </Flex>
+    
+  );
+};
+
+export default Actions;
+
+const RepostSVG = () => {
+	return (
+		<svg
+		aria-label='Repost'
+		color='currentColor'
+		fill='currentColor'
+		height='20'
+		role='img'
+		viewBox='0 0 24 24'
+		width='20'
+	>
+		<title>Repost</title>
+		<path
+			fill=''
+			d='M19.998 9.497a1 1 0 0 0-1 1v4.228a3.274 3.274 0 0 1-3.27 3.27h-5.313l1.791-1.787a1 1 0 0 0-1.412-1.416L7.29 18.287a1.004 1.004 0 0 0-.294.707v.001c0 .023.012.042.013.065a.923.923 0 0 0 .281.643l3.502 3.504a1 1 0 0 0 1.414-1.414l-1.797-1.798h5.318a5.276 5.276 0 0 0 5.27-5.27v-4.228a1 1 0 0 0-1-1Zm-6.41-3.496-1.795 1.795a1 1 0 1 0 1.414 1.414l3.5-3.5a1.003 1.003 0 0 0 0-1.417l-3.5-3.5a1 1 0 0 0-1.414 1.414l1.794 1.794H8.27A5.277 5.277 0 0 0 3 9.271V13.5a1 1 0 0 0 2 0V9.271a3.275 3.275 0 0 1 3.271-3.27Z'
+		></path>
+	</svg>
+	)
+}
+
+const ShareSVG = () => {
+	return (
+		<svg
 			aria-label='Share'
 			color=''
 			fill='rgb(243, 245, 247)'
@@ -122,22 +207,5 @@ const Actions = ({post:post_}) => {
 				strokeWidth='2'
 			></polygon>
 		</svg>
-		</Flex>
-               
-		<Flex gap={2} alignItems={"center"}>
-				<Text color={"gray.light"} fontSize='sm'>
-					{post.replies.length} replies
-				</Text>
-				<Box w={0.5} h={0.5} borderRadius={"full"} bg={"gray.light"}></Box>
-				<Text color={"gray.light"} fontSize='sm'>
-					{post.likes.length} likes
-				</Text>
-			</Flex>
-
-                </Flex>
-    
-  );
-};
-
-export default Actions;
-
+	)
+}
