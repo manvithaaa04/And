@@ -1,6 +1,5 @@
 import { Box, Flex, Spinner } from "@chakra-ui/react";
 import { useState,useEffect } from "react";
-
 import useShowToast from "../hooks/useShowToast";
 import Post from "../components/Post";
 
@@ -8,11 +7,12 @@ const HomePage = () => {
   const [posts,setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const showToast = useShowToast(); 
+
   useEffect(()=>{
     const getFeedPosts = async () => {
       setLoading(true);
      try {
-      const res = await fetch("api/posts/feed");
+      const res = await fetch("/api/posts/feed");
       const data = await res.json();
       if(data.error){
         showToast("Error",data.error,"error");

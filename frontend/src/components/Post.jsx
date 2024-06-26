@@ -115,7 +115,7 @@ const Post = ({post,postedBy}) => {
                     navigate(`/${user.username}`);
                 }}
                 >{user?.username}</Text>
-                <Image src='/verified.png' w={4} h={4} ml={1}/>
+                <Image src='/verified.png' w={4} h= {4} ml={1}/>
             </Flex>
             <Flex gap={4} alignItems={"center"}>
                 <Text fontSize={"xs"} width={36} textAlign={"right"} color={"gray.light"}>
