@@ -1,1 +1,1 @@
-
+Developing a full-stack social media application using \textbf{MongoDB, ExpressJs, ReactJs, NodeJs, Socket.io}, and \textbf{Chakra UI} with \textbf{JWT}-based authentication, featuring post creation, deletion, likes, comments, user follow/unfollow, account freeze, dark/light mode, and responsive design. Integrated a chat app with image support, seen/unseen message status, and notification sounds to enhance user interaction and engagement.  
