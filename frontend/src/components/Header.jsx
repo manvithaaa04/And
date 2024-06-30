@@ -8,6 +8,7 @@ import { FiLogOut } from "react-icons/fi";
 import { Button } from "@chakra-ui/button";
 import useLogout from '../hooks/useLogout';
 import authScreenatom from '../atoms/authAtom';
+import {BsFillChatQuoteFill} from "react-icons/bs";
 
 const Header = () => {
     const {colorMode,toggleColorMode} = useColorMode() 
@@ -40,6 +41,9 @@ return  (
 				<Flex alignItems={"center"} gap={4}>
 					<Link as={RouterLink} to={`/${user.username}`}>
 						<RxAvatar size={24} />
+					</Link>
+          <Link as={RouterLink} to={`/chat`}>
+						<BsFillChatQuoteFill size={20} />
 					</Link>
           <Button  size={"sm"} onClick={logout}>
 			<FiLogOut size={20} />

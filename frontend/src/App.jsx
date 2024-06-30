@@ -9,12 +9,14 @@ import { useRecoilValue } from "recoil";
 import userAtom from "./atoms/userAtom";
 import UpdateProfilePage from "./pages/updateProfilePage.jsx";
 import CreatePost from "./components/CreatePost.jsx";
+import ChatPage from "./pages/ChatPage.jsx";
 function App() {
   const user = useRecoilValue(userAtom);
   return (
   <>
+  
     <Box position={"relative"} w='full'>
-    <Container maxW={ { base: "620px", md: "900px" } }>
+    <Container maxW={ "620px"}>
     <Header />
     
      <Routes>
@@ -30,12 +32,14 @@ function App() {
          <UserPage />
       )}/>
       <Route path='/:username/post/:pid' element={<PostPage />}/>
+      <Route path='/chat' element={user ? <ChatPage /> : <Navigate to={"/auth"} />}/>
      </Routes>
 
       
    
      </Container>
     </Box>
+   
     </>
   );
 }
